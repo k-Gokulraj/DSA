@@ -24,7 +24,6 @@ class Solution {
 
         int len = n.length();
 
-        // Single digit
         if (len == 1) {
             return String.valueOf(Long.parseLong(n) - 1);
         }
@@ -39,27 +38,22 @@ class Solution {
 
         long answer = Long.MAX_VALUE;
 
-        // prefix - 1
         answer = better(answer,
                 makePalindrome(prefix - 1, len),
                 num);
 
-        // prefix
         answer = better(answer,
                 makePalindrome(prefix, len),
                 num);
 
-        // prefix + 1
         answer = better(answer,
                 makePalindrome(prefix + 1, len),
                 num);
 
-        // 999...999
         long all9 = power10(len - 1) - 1;
 
         answer = better(answer, all9, num);
 
-        // 100...001
         long boundary = power10(len) + 1;
 
         answer = better(answer, boundary, num);
