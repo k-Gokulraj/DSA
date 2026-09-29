@@ -1,93 +1,97 @@
 class Solution {
 
-    // Create a palindrome using the first half
     private long makePalindrome(long prefix, int len) {
 
         String left = String.valueOf(prefix);
 
-        String right;
+        StringBuilder sb = new StringBuilder(left);
 
-        if (len % 2 == 0) {
-            // Even length
-            right = new StringBuilder(left)
-                    .reverse()
-                    .toString();
-        } else {
-            // Odd length
-            // Don't copy the middle digit twice
-            right = new StringBuilder(
-                    left.substring(0, left.length() - 1)
-            ).reverse().toString();
+        int start = (len % 2 == 0) ? left.length() - 1
+                                   : left.length() - 2;
+
+        for (int i = start; i >= 0; i--) {
+            sb.append(left.charAt(i));
         }
 
-        return Long.parseLong(left + right);
+        return Long.parseLong(sb.toString());
     }
-
 
     public String nearestPalindromic(String n) {
 
         int len = n.length();
-        long num = Long.parseLong(n);
 
         // Single digit
         if (len == 1) {
-            return String.valueOf(num - 1);
+            return String.valueOf(Long.parseLong(n) - 1);
         }
 
-        // Take first half
+        long num = Long.parseLong(n);
+
         int halfLength = (len + 1) / 2;
 
         long prefix = Long.parseLong(
                 n.substring(0, halfLength)
         );
 
-        // Three possible palindromes
-        long lower = makePalindrome(prefix - 1, len);
-        long current = makePalindrome(prefix, len);
-        long higher = makePalindrome(prefix + 1, len);
-
-        // Boundary cases
-        long all9 = (long) Math.pow(10, len - 1) - 1;
-        long oneZeroOne = (long) Math.pow(10, len) + 1;
-
         long answer = Long.MAX_VALUE;
 
-        answer = getBetter(answer, lower, num);
-        answer = getBetter(answer, current, num);
-        answer = getBetter(answer, higher, num);
-        answer = getBetter(answer, all9, num);
-        answer = getBetter(answer, oneZeroOne, num);
+        // prefix - 1
+        answer = better(answer,
+                makePalindrome(prefix - 1, len),
+                num);
+
+        // prefix
+        answer = better(answer,
+                makePalindrome(prefix, len),
+                num);
+
+        // prefix + 1
+        answer = better(answer,
+                makePalindrome(prefix + 1, len),
+                num);
+
+        // 999...999
+        long all9 = power10(len - 1) - 1;
+
+        answer = better(answer, all9, num);
+
+        // 100...001
+        long boundary = power10(len) + 1;
+
+        answer = better(answer, boundary, num);
 
         return String.valueOf(answer);
     }
 
+    private long better(long current, long candidate, long num) {
 
-    // Choose the closer palindrome
-    private long getBetter(long answer, long candidate, long num) {
-
-        // We cannot return the number itself
         if (candidate == num) {
-            return answer;
+            return current;
         }
 
-        // First candidate
-        if (answer == Long.MAX_VALUE) {
+        if (current == Long.MAX_VALUE) {
             return candidate;
         }
 
         long candidateDiff = Math.abs(candidate - num);
-        long answerDiff = Math.abs(answer - num);
+        long currentDiff = Math.abs(current - num);
 
-        // Candidate is closer
-        if (candidateDiff < answerDiff) {
+        if (candidateDiff < currentDiff ||
+            (candidateDiff == currentDiff && candidate < current)) {
             return candidate;
         }
 
-        // Same distance -> choose smaller
-        if (candidateDiff == answerDiff && candidate < answer) {
-            return candidate;
+        return current;
+    }
+
+    private long power10(int n) {
+
+        long result = 1;
+
+        while (n-- > 0) {
+            result *= 10;
         }
 
-        return answer;
+        return result;
     }
 }
