@@ -1,97 +1,83 @@
 class Solution {
 
-    private long makePalindrome(long prefix, int len) {
-
-        String left = String.valueOf(prefix);
-
-        StringBuilder sb = new StringBuilder(left);
-
-        int start = (len % 2 == 0) ? left.length() - 1
-                                   : left.length() - 2;
-
-        for (int i = start; i >= 0; i--) {
-            sb.append(left.charAt(i));
-        }
-
-        return Long.parseLong(sb.toString());
-    }
-
     public String nearestPalindromic(String n) {
 
         int len = n.length();
 
-        // Single digit
-        if (len == 1) {
-            return String.valueOf(Long.parseLong(n) - 1);
+        // Special cases
+        if (n.equals("1")) {
+            return "0";
         }
 
-        long num = Long.parseLong(n);
+        // Candidates for boundary cases
+        long lowerBoundary = (long) Math.pow(10, len - 1) - 1;
+        long upperBoundary = (long) Math.pow(10, len) + 1;
 
-        int halfLength = (len + 1) / 2;
+        // Take the left half
+        int halfLen = (len + 1) / 2;
 
-        long prefix = Long.parseLong(
-                n.substring(0, halfLength)
-        );
+        long left = Long.parseLong(n.substring(0, halfLen));
 
-        long answer = Long.MAX_VALUE;
+        // Three main candidates
+        long p1 = makePalindrome(left - 1, len);
+        long p2 = makePalindrome(left, len);
+        long p3 = makePalindrome(left + 1, len);
 
-        // prefix - 1
-        answer = better(answer,
-                makePalindrome(prefix - 1, len),
-                num);
+        long original = Long.parseLong(n);
 
-        // prefix
-        answer = better(answer,
-                makePalindrome(prefix, len),
-                num);
+        long answer = -1;
+        long minDistance = Long.MAX_VALUE;
 
-        // prefix + 1
-        answer = better(answer,
-                makePalindrome(prefix + 1, len),
-                num);
+        long[] candidates = {
+            lowerBoundary,
+            upperBoundary,
+            p1,
+            p2,
+            p3
+        };
 
-        // 999...999
-        long all9 = power10(len - 1) - 1;
+        for (long candidate : candidates) {
 
-        answer = better(answer, all9, num);
+            // Don't choose the number itself
+            if (candidate == original) {
+                continue;
+            }
 
-        // 100...001
-        long boundary = power10(len) + 1;
+            long distance = Math.abs(candidate - original);
 
-        answer = better(answer, boundary, num);
+            // Smaller distance wins
+            // If same distance, smaller number wins
+            if (distance < minDistance ||
+                (distance == minDistance && candidate < answer)) {
+
+                minDistance = distance;
+                answer = candidate;
+            }
+        }
 
         return String.valueOf(answer);
     }
 
-    private long better(long current, long candidate, long num) {
 
-        if (candidate == num) {
-            return current;
+    private long makePalindrome(long left, int len) {
+
+        String s = String.valueOf(left);
+
+        StringBuilder sb = new StringBuilder(s);
+
+        // For odd length, don't duplicate middle digit
+        int start;
+
+        if (len % 2 == 0) {
+            start = s.length() - 1;
+        } else {
+            start = s.length() - 2;
         }
 
-        if (current == Long.MAX_VALUE) {
-            return candidate;
+        for (int i = start; i >= 0; i--) {
+            sb.append(s.charAt(i));
         }
 
-        long candidateDiff = Math.abs(candidate - num);
-        long currentDiff = Math.abs(current - num);
-
-        if (candidateDiff < currentDiff ||
-            (candidateDiff == currentDiff && candidate < current)) {
-            return candidate;
-        }
-
-        return current;
-    }
-
-    private long power10(int n) {
-
-        long result = 1;
-
-        while (n-- > 0) {
-            result *= 10;
-        }
-
-        return result;
+        return Long.parseLong(sb.toString());
     }
 }
