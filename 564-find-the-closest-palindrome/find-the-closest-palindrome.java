@@ -1,83 +1,101 @@
 class Solution {
 
+   private long makePalindrome(long prefix, int len) {
+
+    String left = String.valueOf(prefix);
+
+    StringBuilder sb = new StringBuilder(left);
+
+    if (len % 2 == 0) {
+        sb.append(new StringBuilder(left)
+                .reverse());
+
+    } else {
+        String remaining = left.substring(0, left.length() - 1);
+
+        sb.append(new StringBuilder(remaining)
+                .reverse());
+    }
+
+    return Long.parseLong(sb.toString());
+}
+
     public String nearestPalindromic(String n) {
 
         int len = n.length();
 
-        // Special cases
-        if (n.equals("1")) {
-            return "0";
+        // Single digit
+        if (len == 1) {
+            return String.valueOf(Long.parseLong(n) - 1);
         }
 
-        // Candidates for boundary cases
-        long lowerBoundary = (long) Math.pow(10, len - 1) - 1;
-        long upperBoundary = (long) Math.pow(10, len) + 1;
+        long num = Long.parseLong(n);
 
-        // Take the left half
-        int halfLen = (len + 1) / 2;
+        int halfLength = (len + 1) / 2;
 
-        long left = Long.parseLong(n.substring(0, halfLen));
+        long prefix = Long.parseLong(
+                n.substring(0, halfLength)
+        );
 
-        // Three main candidates
-        long p1 = makePalindrome(left - 1, len);
-        long p2 = makePalindrome(left, len);
-        long p3 = makePalindrome(left + 1, len);
+        long answer = Long.MAX_VALUE;
 
-        long original = Long.parseLong(n);
+        // prefix - 1
+        answer = better(answer,
+                makePalindrome(prefix - 1, len),
+                num);
 
-        long answer = -1;
-        long minDistance = Long.MAX_VALUE;
+        // prefix
+        answer = better(answer,
+                makePalindrome(prefix, len),
+                num);
 
-        long[] candidates = {
-            lowerBoundary,
-            upperBoundary,
-            p1,
-            p2,
-            p3
-        };
+        // prefix + 1
+        answer = better(answer,
+                makePalindrome(prefix + 1, len),
+                num);
 
-        for (long candidate : candidates) {
+        // 999...999
+        long all9 = power10(len - 1) - 1;
 
-            // Don't choose the number itself
-            if (candidate == original) {
-                continue;
-            }
+        answer = better(answer, all9, num);
 
-            long distance = Math.abs(candidate - original);
+        // 100...001
+        long boundary = power10(len) + 1;
 
-            // Smaller distance wins
-            // If same distance, smaller number wins
-            if (distance < minDistance ||
-                (distance == minDistance && candidate < answer)) {
-
-                minDistance = distance;
-                answer = candidate;
-            }
-        }
+        answer = better(answer, boundary, num);
 
         return String.valueOf(answer);
     }
 
+    private long better(long current, long candidate, long num) {
 
-    private long makePalindrome(long left, int len) {
-
-        String s = String.valueOf(left);
-
-        StringBuilder sb = new StringBuilder(s);
-
-        // For odd length, don't duplicate middle digit
-        int start;
-
-        if (len % 2 == 0) {
-            start = s.length() - 1;
-        } else {
-            start = s.length() - 2;
+        if (candidate == num) {
+            return current;
         }
 
-        for (int i = start; i >= 0; i--) {
-            sb.append(s.charAt(i));
+        if (current == Long.MAX_VALUE) {
+            return candidate;
         }
 
-        return Long.parseLong(sb.toString());
+        long candidateDiff = Math.abs(candidate - num);
+        long currentDiff = Math.abs(current - num);
+
+        if (candidateDiff < currentDiff ||
+            (candidateDiff == currentDiff && candidate < current)) {
+            return candidate;
+        }
+
+        return current;
+    }
+
+    private long power10(int n) {
+
+        long result = 1;
+
+        while (n-- > 0) {
+            result *= 10;
+        }
+
+        return result;
     }
 }
