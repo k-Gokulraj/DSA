@@ -4,7 +4,6 @@ class Solution {
         int left = 1;
         int right = 0;
 
-        // Find maximum
         for (int num : nums) {
             right = Math.max(right, num);
         }
@@ -17,7 +16,6 @@ class Solution {
 
             for (int num : nums) {
 
-                // Ceiling division
                 sum += (num + mid - 1) / mid;
 
                 if (sum > threshold) {
@@ -26,10 +24,8 @@ class Solution {
             }
 
             if (sum > threshold) {
-                // Divisor is too small
                 left = mid + 1;
             } else {
-                // Divisor works
                 right = mid - 1;
             }
         }
