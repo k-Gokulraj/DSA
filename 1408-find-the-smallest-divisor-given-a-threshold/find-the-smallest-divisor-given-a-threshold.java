@@ -1,37 +1,44 @@
 class Solution {
     public int smallestDivisor(int[] nums, int threshold) {
-        Arrays.sort(nums);
+
         int left = 1;
-        int right = nums[nums.length - 1];
+        int right = 0;
+
+        // Find maximum value
+        for (int num : nums) {
+            right = Math.max(right, num);
+        }
+
         int current = Integer.MAX_VALUE;
 
-        while(left <= right ){
+        while (left <= right) {
+
             int mid = left + (right - left) / 2;
+
             boolean newCurrent = true;
-            int sum  = 0;
+            int sum = 0;
 
+            for (int i = 0; i < nums.length; i++) {
 
-            for(int i = 0; i < nums.length; i++){
-                sum  += (int) Math.ceil((double) nums[i] / mid);
-                if(sum > threshold){
+                sum += (int) Math.ceil((double) nums[i] / mid);
+
+                if (sum > threshold) {
                     newCurrent = false;
                     break;
                 }
             }
 
-            if(sum > threshold){
+            if (sum > threshold) {
                 left = mid + 1;
-            }else{
+            } else {
                 right = mid - 1;
             }
 
-
-            if(newCurrent){
-                if(mid < current){
+            if (newCurrent) {
+                if (mid < current) {
                     current = mid;
                 }
             }
-
         }
 
         return current;
