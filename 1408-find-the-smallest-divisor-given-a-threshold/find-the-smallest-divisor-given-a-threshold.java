@@ -4,43 +4,36 @@ class Solution {
         int left = 1;
         int right = 0;
 
-        // Find maximum value
+        // Find maximum
         for (int num : nums) {
             right = Math.max(right, num);
         }
-
-        int current = Integer.MAX_VALUE;
 
         while (left <= right) {
 
             int mid = left + (right - left) / 2;
 
-            boolean newCurrent = true;
             int sum = 0;
 
-            for (int i = 0; i < nums.length; i++) {
+            for (int num : nums) {
 
-                sum += (int) Math.ceil((double) nums[i] / mid);
+                // Ceiling division
+                sum += (num + mid - 1) / mid;
 
                 if (sum > threshold) {
-                    newCurrent = false;
                     break;
                 }
             }
 
             if (sum > threshold) {
+                // Divisor is too small
                 left = mid + 1;
             } else {
+                // Divisor works
                 right = mid - 1;
-            }
-
-            if (newCurrent) {
-                if (mid < current) {
-                    current = mid;
-                }
             }
         }
 
-        return current;
+        return left;
     }
 }
