@@ -7,62 +7,75 @@ class Solution {
         int bucket1 = -1;
         int bucket2 = -1;
 
-        int count1 = 0;
-        int count2 = 0;
-
         int max = 0;
 
         while (right < fruits.length) {
 
             int current = fruits[right];
 
-            // Fruit already exists in bucket1
-            if (current == bucket1) {
-                count1++;
+            if (current == bucket1 || current == bucket2) {
                 right++;
             }
 
-            // Fruit already exists in bucket2
-            else if (current == bucket2) {
-                count2++;
-                right++;
-            }
-
-            // Bucket1 is empty
             else if (bucket1 == -1) {
                 bucket1 = current;
-                count1 = 1;
                 right++;
             }
 
-            // Bucket2 is empty
             else if (bucket2 == -1) {
                 bucket2 = current;
-                count2 = 1;
                 right++;
             }
 
-            // Third fruit type
             else {
 
-                while (count1 > 0 && count2 > 0) {
+                while (left < right) {
 
                     if (fruits[left] == bucket1) {
-                        count1--;
-                    } else {
-                        count2--;
+
+                        int temp = fruits[left];
+                        left++;
+
+                        boolean stillExists = false;
+
+                        for (int i = left; i < right; i++) {
+                            if (fruits[i] == temp) {
+                                stillExists = true;
+                                break;
+                            }
+                        }
+
+                        if (!stillExists) {
+                            bucket1 = -1;
+                            break;
+                        }
                     }
 
-                    left++;
+                    else {
+
+                        int temp = fruits[left];
+                        left++;
+
+                        boolean stillExists = false;
+
+                        for (int i = left; i < right; i++) {
+                            if (fruits[i] == temp) {
+                                stillExists = true;
+                                break;
+                            }
+                        }
+
+                        if (!stillExists) {
+                            bucket2 = -1;
+                            break;
+                        }
+                    }
                 }
 
-                // One basket is now empty
-                if (count1 == 0) {
+                if (bucket1 == -1) {
                     bucket1 = current;
-                    count1 = 1;
                 } else {
                     bucket2 = current;
-                    count2 = 1;
                 }
 
                 right++;
