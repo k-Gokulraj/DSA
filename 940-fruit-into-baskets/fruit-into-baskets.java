@@ -108,19 +108,16 @@ class Solution {
 
             int current = fruits[right];
 
-            // Fruit already exists in bucket1
             if (current == bucket1) {
                 count1++;
                 right++;
             }
 
-            // Fruit already exists in bucket2
             else if (current == bucket2) {
                 count2++;
                 right++;
             }
 
-            // Bucket1 is empty
             else if (bucket1 == -1) {
                 bucket1 = current;
                 count1 = 1;
