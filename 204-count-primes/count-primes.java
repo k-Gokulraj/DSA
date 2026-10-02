@@ -7,7 +7,10 @@ class Solution {
 
         boolean[] isPrime = new boolean[n];
 
-        Arrays.fill(isPrime, true);
+        for (int i = 2; i < n; i++) {
+            isPrime[i] = true;
+        }
+
 
         isPrime[0] = false;
         isPrime[1] = false;
