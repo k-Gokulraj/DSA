@@ -2,84 +2,47 @@ import java.util.*;
 
 class Solution {
 
-    public void findSecretWord(String[] words, Master master) {
+ public void findSecretWord(String[] words, Master master) {
+    List<String> candidates = new ArrayList<>(Arrays.asList(words));
 
-        int n = words.length;
-
-        // match[i][j] = number of positions where
-        // words[i] and words[j] are equal
-        int[][] match = new int[n][n];
-
-        for (int i = 0; i < n; i++) {
-            for (int j = i; j < n; j++) {
-
-                int count = 0;
-
-                for (int k = 0; k < 6; k++) {
-                    if (words[i].charAt(k) == words[j].charAt(k)) {
-                        count++;
-                    }
-                }
-
-                match[i][j] = count;
-                match[j][i] = count;
+    while (!candidates.isEmpty()) {
+        // Minimax: pick word whose worst-case group is smallest
+        String guess = candidates.get(0);
+        int best = Integer.MAX_VALUE;
+        for (String g : candidates) {
+            Map<Integer, Integer> buckets = new HashMap<>();
+            for (String w : candidates) {
+                int k = match(g, w);
+                buckets.merge(k, 1, Integer::sum);
+            }
+            int worst = Collections.max(buckets.values());
+            if (worst < best) {
+                best = worst;
+                guess = g;
             }
         }
 
-        List<Integer> candidates = new ArrayList<>();
-
-        for (int i = 0; i < n; i++) {
-            candidates.add(i);
+        int matches = master.guess(guess);
+        if (matches == 6) {
+            return;
         }
 
-        while (!candidates.isEmpty()) {
-
-            int guess = getBestGuess(candidates, match);
-
-            int result = master.guess(words[guess]);
-
-            if (result == 6) {
-                return;
+        List<String> filtered = new ArrayList<>();
+        for (String word : candidates) {
+            if (match(word, guess) == matches) {
+                filtered.add(word);
             }
-
-            List<Integer> next = new ArrayList<>();
-
-            for (int candidate : candidates) {
-
-                if (match[guess][candidate] == result) {
-                    next.add(candidate);
-                }
-            }
-
-            candidates = next;
         }
+        candidates = filtered;
     }
+}
 
-    private int getBestGuess(List<Integer> candidates, int[][] match) {
-
-        int bestGuess = candidates.get(0);
-        int bestWorstCase = Integer.MAX_VALUE;
-
-        for (int guess : candidates) {
-
-            int[] groups = new int[7];
-
-            for (int candidate : candidates) {
-                groups[match[guess][candidate]]++;
-            }
-
-            int worstCase = 0;
-
-            for (int count : groups) {
-                worstCase = Math.max(worstCase, count);
-            }
-
-            if (worstCase < bestWorstCase) {
-                bestWorstCase = worstCase;
-                bestGuess = guess;
-            }
-        }
-
-        return bestGuess;
+private int match(String a, String b) {
+    int count = 0;
+    for (int i = 0; i < 6; i++) {
+        if (a.charAt(i) == b.charAt(i)) count++;
     }
+    return count;
+}
+
 }
