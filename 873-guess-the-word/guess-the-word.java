@@ -1,33 +1,53 @@
+import java.util.*;
+
 class Solution {
 
     public void findSecretWord(String[] words, Master master) {
 
-        List<String> candidates = new ArrayList<>();
+        int n = words.length;
 
-        for (String word : words) {
-            candidates.add(word);
+        // match[i][j] = number of positions where
+        // words[i] and words[j] are equal
+        int[][] match = new int[n][n];
+
+        for (int i = 0; i < n; i++) {
+            for (int j = i; j < n; j++) {
+
+                int count = 0;
+
+                for (int k = 0; k < 6; k++) {
+                    if (words[i].charAt(k) == words[j].charAt(k)) {
+                        count++;
+                    }
+                }
+
+                match[i][j] = count;
+                match[j][i] = count;
+            }
+        }
+
+        List<Integer> candidates = new ArrayList<>();
+
+        for (int i = 0; i < n; i++) {
+            candidates.add(i);
         }
 
         while (!candidates.isEmpty()) {
 
-            // Choose the best word to guess
-            String guess = getBestGuess(candidates);
+            int guess = getBestGuess(candidates, match);
 
-            // Ask Master
-            int matches = master.guess(guess);
+            int result = master.guess(words[guess]);
 
-            // Found the secret
-            if (matches == 6) {
+            if (result == 6) {
                 return;
             }
 
-            // Filter candidates
-            List<String> next = new ArrayList<>();
+            List<Integer> next = new ArrayList<>();
 
-            for (String word : candidates) {
+            for (int candidate : candidates) {
 
-                if (matchCount(guess, word) == matches) {
-                    next.add(word);
+                if (match[guess][candidate] == result) {
+                    next.add(candidate);
                 }
             }
 
@@ -35,52 +55,31 @@ class Solution {
         }
     }
 
-    // Finds how many positions are exactly the same
-    private int matchCount(String a, String b) {
+    private int getBestGuess(List<Integer> candidates, int[][] match) {
 
-        int count = 0;
+        int bestGuess = candidates.get(0);
+        int bestWorstCase = Integer.MAX_VALUE;
 
-        for (int i = 0; i < 6; i++) {
-            if (a.charAt(i) == b.charAt(i)) {
-                count++;
-            }
-        }
-
-        return count;
-    }
-
-    // Choose the word that minimizes the largest possible group
-    private String getBestGuess(List<String> candidates) {
-
-        String bestWord = candidates.get(0);
-        int bestScore = Integer.MAX_VALUE;
-
-        for (String guess : candidates) {
+        for (int guess : candidates) {
 
             int[] groups = new int[7];
 
-            // See how this guess divides the candidates
-            for (String word : candidates) {
-
-                int matches = matchCount(guess, word);
-
-                groups[matches]++;
+            for (int candidate : candidates) {
+                groups[match[guess][candidate]]++;
             }
 
-            // Worst-case number of candidates remaining
-            int worstGroup = 0;
+            int worstCase = 0;
 
             for (int count : groups) {
-                worstGroup = Math.max(worstGroup, count);
+                worstCase = Math.max(worstCase, count);
             }
 
-            // We want the smallest worst-case group
-            if (worstGroup < bestScore) {
-                bestScore = worstGroup;
-                bestWord = guess;
+            if (worstCase < bestWorstCase) {
+                bestWorstCase = worstCase;
+                bestGuess = guess;
             }
         }
 
-        return bestWord;
+        return bestGuess;
     }
 }
